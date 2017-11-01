@@ -52,8 +52,7 @@ def SelectAllRuns(data):
 def GetRunNumbers():
   api = RhApi(DEFAULT_URL, debug = False)
         
-  queryPiecesRunreg = [ "r.lhcfill >= 6271",
-                  "r.lhcfill != 6336",
+  queryPiecesRunreg = [ customQueryPiece,
                   "r.pixel_present = 1",
                   "r.tracker_present = 1",
                   "r.bpix_ready = 1",
@@ -61,7 +60,7 @@ def GetRunNumbers():
                   "r.beam1_stable = 1", 
                   "r.beam2_stable = 1",
                   "r.run_test = 0",
-                  # "r.runlivelumi >= 50",
+                  # "r.runlivelumi >= 50", #no value in this column...
                   ]
   qRunreg = "select r.runnumber, r.lhcfill, r.duration from runreg_tracker.runs r where " + " and ".join(queryPiecesRunreg) + " order by r.lhcfill asc"
   print(qRunreg)
@@ -88,7 +87,7 @@ def GetRunNumbers():
   # dataRunreg = [d for d in dataRunreg if d[0] in dataWBM]
   # print("After: " + str(len(dataRunreg)))
   # input("WAIT")
-  return SelectAllRuns(dataRunreg) if False else SelectOnlyLongestRunInTheFill(dataRunreg)
+  return SelectAllRuns(dataRunreg) if not isSelectLongestRunInFill else SelectOnlyLongestRunInTheFill(dataRunreg)
   
 ########################################
 
@@ -104,7 +103,7 @@ def LinkGenerator(runNum):
 ########################################
   
 def Grid2gif(image_str, output_gif):
-  str1 = 'convert -delay 40 -loop 1 ' + image_str  + ' ' + output_gif #should create film like (unlooped)
+  str1 = "convert " + conversionOptions + " " + image_str  + ' ' + output_gif #should create film like (unlooped)
 
   subprocess.call(str1, shell=True)  
   
@@ -129,7 +128,7 @@ def SaveInFolder(histogramDictionaryDic):
       
       c.Print(outputDir + name + "/" + str(run) + "." + fileType)
       
-    Grid2gif(outputDir + name + "/*.png", outputDir + name + "/out.gif")
+    Grid2gif(outputDir + name + "/*." + fileType, outputDir + name + "/out.gif")
       
 ### !DEFINITIONS  
   
